@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guest Information</title>
+    <!-- Add Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .search-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        input[type="tel"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        #guest-info {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        #guest-info p {
+            margin: 10px 0;
+        }
+
+        #guest-info strong {
+            color: #2c3e50;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            input[type="tel"], button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Guest Information</h1>
+    <div class="search-container">
+        <label for="phone-input">Enter Phone Number:</label>
+        <input type="tel" id="phone-input" placeholder="e.g., 1234567890">
+        <button onclick="fetchGuestInfo()">Search</button>
+    </div>
+    <div id="guest-info">
+        <p><strong>Name:</strong> <span id="guest-name"></span></p>
+        <p><strong>Number of Guests:</strong> <span id="guest-count"></span></p>
+        <p><strong>Guest Type:</strong> <span id="guest-type"></span></p>
+        <p><strong>Seat Number:</strong> <span id="seat-number"></span></p>
+    </div>
+
+ 
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAUATi4cM2Ukf-mjSa-lEk6ozdUqPb2wWE",
+            authDomain: "addguest-2a539.firebaseapp.com",
+            projectId: "addguest-2a539",
+            storageBucket: "addguest-2a539.appspot.com",
+            messagingSenderId: "510021911057",
+            appId: "1:510021911057:web:b5cc34e5f1c298af10e7b0",
+            measurementId: "G-HG3LN96NBY"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Get a reference to the database service
+        const db = firebase.firestore();
+
+        function fetchGuestInfo() {
+            const phoneNumber = document.getElementById('phone-input').value;
+            
+            db.collection("guests").where("phone", "==", phoneNumber).get()
+                .then((querySnapshot) => {
+                    if (querySnapshot.empty) {
+                        alert("No guest found with this phone number.");
+                        document.getElementById('guest-info').style.display = 'none';
+                    } else {
+                        querySnapshot.forEach((doc) => {
+                            const data = doc.data();
+                            document.getElementById('guest-name').textContent = data.name || 'N/A';
+                            document.getElementById('guest-count').textContent = data.numGuests || 'N/A';
+                            document.getElementById('guest-type').textContent = data.guestType || 'N/A';
+                            document.getElementById('seat-number').textContent = data.seats || 'N/A';
+                            document.getElementById('guest-info').style.display = 'block';
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.log("Error getting documents: ", error);
+                    alert("An error occurred while fetching guest information.");
+                });
+        }
+    </script>
+</body>
+</html>
